@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Resume {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String?   @db.ObjectId
+  fileName      String
+  filePath      String
+  extractedText String
+  createdAt     DateTime  @default(now())
+  analyses      Analysis[]
+}
+
+model Analysis {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  resumeId        String   @db.ObjectId
+  resume          Resume   @relation(fields: [resumeId], references: [id])
+  jobDescription String?
+  atsScore        Int
+  feedback        Json     // Stores formatting, keywordMatch, missingKeywords, suggestions
+  analyzedAt      DateTime @default(now())
+}

@@ -1,0 +1,130 @@
+# Resume Analyser
+
+## 1. UI Pages
+- **Home Page (`/`)**: Landing page with a clear value proposition and a "Get Started" call-to-action.
+- **Upload Page (`/upload`)**: 
+    - PDF file upload zone.
+    - Optional text area for the Target Job Description (to enable tailored ATS analysis).
+- **Analysis Result Page (`/result/[id]`)**: 
+    - ATS Score Visualization (Radial Gauge Chart).
+    - Skill Gap Analysis (Bar Chart: Matched vs Missing Keywords).
+    - Sectional Scoring (Radar Chart: Formatting, Keywords, Experience, Education).
+    - "What's missing" and "How to improve" sections.
+    - Comparison between resume and job description.
+- **User Dashboard (`/dashboard`)** (Optional): List of previous analyses with timestamps and scores.
+
+## 2. Database Design (MongoDB + Prisma)
+Prisma will be used as the ORM to manage the MongoDB schema, providing type-safety and easier migrations.
+
+### Prisma Schema
+**Model: `Resume`**
+- `id`: String @id @default(auto()) @map("_id") @db.ObjectId
+- `userId`: String? @db.ObjectId
+- `fileName`: String
+- `filePath`: String
+- `extractedText`: String
+- `createdAt`: DateTime @default(now())
+- `analyses`: Analysis[]
+
+**Model: `Analysis`**
+- `id`: String @id @default(auto()) @map("_id") @db.ObjectId
+- `resumeId`: String @db.ObjectId
+- `resume`: Resume @relation(fields: [resumeId], references: [id])
+- `jobDescription`: String?
+- `atsScore`: Int
+- `feedback`: Json // Stores formatting, keywordMatch, missingKeywords, suggestions
+- `analyzedAt`: DateTime @default(now())
+
+## 3. Free AI Models for Resume Analysis
+The best free options currently are:
+1. **Gemini 1.5 Flash (Recommended)**: 
+    - **Pros**: Extremely large context window, native PDF support, generous free tier via Google AI Studio.
+    - **Use Case**: Primary analysis engine.
+2. **Llama 3 (via Groq)**: 
+    - **Pros**: Incredible speed, free tier for developers.
+    - **Use Case**: Quick feedback loops or secondary verification.
+3. **Mistral 7B / Mixtral (via Mistral AI)**: 
+    - **Pros**: High quality, often has a free trial/tier.
+    - **Use Case**: High-accuracy text analysis.
+
+## 4. Implementation Strategy
+### Phase 1: Foundation
+- Initialize NextJS project with Tailwind CSS.
+- Setup MongoDB connection using Prisma.
+- Implement basic file upload logic using server actions.
+
+### Phase 2: PDF Processing & AI Integration
+- Implement text extraction from PDF using `pdf-parse`.
+- Integrate Google AI Studio (Gemini 1.5 Flash API) to process the extracted text.
+- Design a strict system prompt to ensure the AI returns a structured JSON response.
+
+### Phase 3: Analysis Logic
+- Develop the ATS scoring algorithm:
+    - Format check (standard fonts, no complex graphics).
+    - Keyword matching against the job description.
+    - Sentiment/Tone analysis for professional experience.
+- Store results in MongoDB via Prisma.
+
+### Phase 4: Frontend Implementation
+- Build the responsive UI using Tailwind.
+- Implement result visualization using Recharts (Radial Gauge, Bar, and Radar charts).
+- Add loading states (skeleton screens) while the AI is analyzing.
+
+### Phase 5: Testing & Optimization
+- Test with various resume formats.
+- Optimize prompt for consistency in scoring.
+- Implement caching to avoid redundant AI calls for the same file.
+
+## 5. Project Structure
+
+```text
+resume-analyser/
+├── app/                        # Next.js App Router
+│   ├── layout.tsx              # Root layout (Navbar, Footer)
+│   ├── page.tsx                # Home Page (Landing)
+│   ├── upload/
+│   │   └── page.tsx            # Resume Upload & Job Description input
+│   ├── result/
+│   │   └── [id]/
+│   │       └── page.tsx        # Analysis Results with Charts
+│   ├── dashboard/
+│   │   └── page.tsx            # User's analysis history
+│   └── api/                    # API Routes
+│       └── analyze/
+│           └── route.ts        # Main endpoint for PDF -> AI -> DB flow
+├── components/                 # React Components
+│   ├── ui/                     # Base UI components
+│   │   ├── button.tsx
+│   │   ├── input.tsx
+│   │   └── card.tsx
+│   ├── charts/                 # Visualization components (Recharts)
+│   │   ├── ScoreGauge.tsx      # Radial gauge for ATS score
+│   │   ├── SkillBarChart.tsx   # Matched vs Missing keywords
+│   │   └── SectionRadar.tsx     # Formatting, Experience, etc.
+│   └── shared/                 # Layout elements
+│       ├── Navbar.tsx
+│       └── FileUploadZone.tsx
+├── lib/                         # Shared utility configurations
+│   ├── prisma.ts               # Prisma Client singleton
+│   ├── gemini.ts               # Gemini AI configuration & client
+│   └── utils.ts                # Helper functions
+├── services/                    # Business logic
+│   ├── pdfService.ts           # PDF text extraction (pdf-parse)
+│   ├── aiService.ts             # Gemini prompts and response parsing
+│   └── analysisService.ts      # Logic to calculate final ATS scores
+├── prisma/                      # Database layer
+│   └── schema.prisma           # MongoDB Schema definitions
+├── types/                       # TypeScript interfaces
+│   └── index.ts                # Analysis, Resume, and Feedback types
+├── public/                      # Static assets
+├── .env                        # Environment variables
+└── package.json
+```
+
+### Key File Roles
+- **`prisma/schema.prisma`**: Defines the `Resume` and `Analysis` models for MongoDB.
+- **`services/pdfService.ts`**: Handles extraction of raw text from PDF files.
+- **`services/aiService.ts`**: Manages the system prompts and structured JSON output from Gemini Flash.
+- **`components/charts/`**: Transforms AI JSON data into visual charts using Recharts.
+- **`app/result/[id]/page.tsx`**: Fetches specific analysis data via Prisma and renders the results.
+- **`lib/gemini.ts`**: Configures the `@google/generative-ai` SDK.
