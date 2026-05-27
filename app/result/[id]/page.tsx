@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { ScoreGauge } from '@/components/charts/ScoreGauge';
 import { SkillBarChart } from '@/components/charts/SkillBarChart';
 import { SectionRadar } from '@/components/charts/SectionRadar';
-import { CheckCircle2, AlertCircle, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, AlertCircle, ArrowLeft, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface Analysis {
@@ -60,6 +60,44 @@ export default function ResultPage() {
           <Card className="col-span-1 md:col-span-2 space-y-4">
             <h3 className="text-lg font-semibold text-slate-700">Skill Gap Analysis</h3>
             <SkillBarChart matched={data.feedback.keywordMatch} missing={data.feedback.missingKeywords} />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  Matched Skills
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {data.feedback.keywordMatch.length > 0 ? (
+                    data.feedback.keywordMatch.map((skill, i) => (
+                      <span key={i} className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200">
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400 italic">No matching skills found</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
+                  <XCircle className="w-4 h-4 text-red-500" />
+                  Missing Skills
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {data.feedback.missingKeywords.length > 0 ? (
+                    data.feedback.missingKeywords.map((skill, i) => (
+                      <span key={i} className="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full border border-red-200">
+                        {skill}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-xs text-slate-400 italic">No missing skills identified</span>
+                  )}
+                </div>
+              </div>
+            </div>
           </Card>
         </div>
 
