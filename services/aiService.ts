@@ -19,7 +19,9 @@ export async function analyzeResume(resumeText: string, jobDescription?: string)
       "atsScore": number (0-100, based on matching keywords, formatting, and professional impact),
       "feedback": {
         "formatting": "Detailed feedback on layout, fonts, and ATS compatibility",
-        "keywordMatch": ["List of keywords found that match the job description"],
+        "keywordMatch": [
+          { "skill": "Skill Name", "snippet": "The exact phrase/sentence from the resume where this skill is mentioned" }
+        ],
         "missingKeywords": ["List of critical keywords missing for this role"],
         "suggestions": ["Actionable tips to improve the resume"]
       }

@@ -4,9 +4,14 @@ export interface ResumeData {
   text: string;
 }
 
+export interface SkillMatch {
+  skill: string;
+  snippet: string;
+}
+
 export interface AnalysisFeedback {
   formatting: string;
-  keywordMatch: string[];
+  keywordMatch: SkillMatch[];
   missingKeywords: string[];
   suggestions: string[];
 }

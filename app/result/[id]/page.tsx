@@ -12,7 +12,7 @@ interface Analysis {
   atsScore: number;
   feedback: {
     formatting: string;
-    keywordMatch: string[];
+    keywordMatch: { skill: string; snippet: string }[];
     missingKeywords: string[];
     suggestions: string[];
   };
@@ -59,7 +59,7 @@ export default function ResultPage() {
 
           <Card className="col-span-1 md:col-span-2 space-y-4">
             <h3 className="text-lg font-semibold text-slate-700">Skill Gap Analysis</h3>
-            <SkillBarChart matched={data.feedback.keywordMatch} missing={data.feedback.missingKeywords} />
+            <SkillBarChart matched={data.feedback.keywordMatch.map(m => m.skill)} missing={data.feedback.missingKeywords} />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
               <div className="space-y-3">
@@ -67,12 +67,19 @@ export default function ResultPage() {
                   <CheckCircle2 className="w-4 h-4 text-green-500" />
                   Matched Skills
                 </h4>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-3">
                   {data.feedback.keywordMatch.length > 0 ? (
-                    data.feedback.keywordMatch.map((skill, i) => (
-                      <span key={i} className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200">
-                        {skill}
-                      </span>
+                    data.feedback.keywordMatch.map((match, i) => (
+                      <div key={i} className="p-2 bg-green-50 rounded-md border border-green-100">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-green-700 uppercase tracking-wider">
+                            {match.skill}
+                          </span>
+                        </div>
+                        <p className="text-xs text-green-600 italic leading-relaxed">
+                          "{match.snippet}"
+                        </p>
+                      </div>
                     ))
                   ) : (
                     <span className="text-xs text-slate-400 italic">No matching skills found</span>
