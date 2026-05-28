@@ -51,12 +51,28 @@ export default function ResultPage() {
           <h1 className="text-2xl font-bold text-slate-900">Analysis Results</h1>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="flex flex-col items-center justify-center space-y-4">
-            <h3 className="text-lg font-semibold text-slate-700">Overall ATS Score</h3>
-            <ScoreGauge score={data.atsScore} />
+        <div className="grid grid-cols-1 gap-6">
+          <Card className="p-6 space-y-6">
+            <h3 className="text-xl font-bold text-slate-900">Analysis Overview</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="flex flex-col items-center justify-center space-y-4 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider">Overall ATS Score</h4>
+                <ScoreGauge score={data.atsScore} />
+              </div>
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold text-slate-600 uppercase tracking-wider text-center">Sectional Strength</h4>
+                <SectionRadar scores={{
+                  Formatting: data.atsScore * 0.9, // Simulated based on overall score
+                  Keywords: data.feedback.keywordMatch.length * 10,
+                  Experience: 80, // Mock
+                  Education: 90, // Mock
+                }} />
+              </div>
+            </div>
           </Card>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="col-span-1 md:col-span-2 space-y-4">
             <h3 className="text-lg font-semibold text-slate-700">Skill Gap Analysis</h3>
             <SkillBarChart matched={data.feedback.keywordMatch.map(m => m.skill)} missing={data.feedback.missingKeywords} />
@@ -105,18 +121,6 @@ export default function ResultPage() {
                 </div>
               </div>
             </div>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-700">Sectional Strength</h3>
-            <SectionRadar scores={{
-              Formatting: data.atsScore * 0.9, // Simulated based on overall score
-              Keywords: data.feedback.keywordMatch.length * 10,
-              Experience: 80, // Mock
-              Education: 90, // Mock
-            }} />
           </Card>
 
           <Card className="space-y-4">
